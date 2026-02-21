@@ -21,7 +21,8 @@ import java.util.Collections;
 
 /**
  * Slash command version of PlayCmd.
- * Supports /play <query|URL> and /play playlist <name> as a subcommand.
+ * Supports /play <query|URL>
+ * Use /playlists and /playnext for playlist/queue operations.
  */
 public class SlashPlayCmd extends SlashMusicCommand
 {
@@ -37,9 +38,8 @@ public class SlashPlayCmd extends SlashMusicCommand
         this.beListening = true;
         this.bePlaying = false;
         this.options = Collections.singletonList(
-                new OptionData(OptionType.STRING, "query", "Song title, URL, or playlist name to play", false)
+                new OptionData(OptionType.STRING, "query", "Song title or URL to play", false)
         );
-        this.children = new SlashMusicCommand[]{new PlaylistSubCmd(bot)};
     }
 
     @Override
@@ -66,7 +66,7 @@ public class SlashPlayCmd extends SlashMusicCommand
                 return;
             }
             event.reply(event.getClient().getWarning()
-                    + " Please provide a song title or URL, or use `/play playlist <name>` to play a playlist.")
+                    + " Please provide a song title or URL.")
                     .setEphemeral(true).queue();
             return;
         }
@@ -195,66 +195,6 @@ public class SlashPlayCmd extends SlashMusicCommand
                 hook.editOriginal(event.getClient().getError() + " Error loading: " + throwable.getMessage()).queue();
             else
                 hook.editOriginal(event.getClient().getError() + " Error loading track.").queue();
-        }
-    }
-
-    /**
-     * Subcommand: /play playlist <name>
-     */
-    public class PlaylistSubCmd extends SlashMusicCommand
-    {
-        public PlaylistSubCmd(Bot bot)
-        {
-            super(bot);
-            this.name = "playlist";
-            this.help = "plays the provided playlist";
-            this.beListening = true;
-            this.bePlaying = false;
-            this.options = Collections.singletonList(
-                    new OptionData(OptionType.STRING, "name", "Name of the playlist to play", true)
-            );
-        }
-
-        @Override
-        public void doCommand(SlashCommandEvent event)
-        {
-            String name = event.optString("name", "");
-            if (name.isEmpty())
-            {
-                event.reply(event.getClient().getError() + " Please include a playlist name.")
-                        .setEphemeral(true).queue();
-                return;
-            }
-            Playlist playlist = bot.getPlaylistLoader().getPlaylist(name);
-            if (playlist == null)
-            {
-                event.reply("I could not find `" + name + ".txt` in the Playlists folder.")
-                        .setEphemeral(true).queue();
-                return;
-            }
-            event.reply(loadingEmoji + " Loading playlist **" + name + "**... ("
-                    + playlist.getItems().size() + " items)").queue(hook ->
-            {
-                AudioHandler handler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
-                playlist.loadTracks(bot.getPlayerManager(),
-                        at -> handler.addTrack(new QueuedTrack(at, RequestMetadata.fromResultHandler(at, event))),
-                        () -> {
-                            StringBuilder builder = new StringBuilder(
-                                    playlist.getTracks().isEmpty()
-                                            ? event.getClient().getWarning() + " No tracks were loaded!"
-                                            : event.getClient().getSuccess() + " Loaded **"
-                                                    + playlist.getTracks().size() + "** tracks!");
-                            if (!playlist.getErrors().isEmpty())
-                                builder.append("\nThe following tracks failed to load:");
-                            playlist.getErrors().forEach(err -> builder.append("\n`[")
-                                    .append(err.getIndex() + 1).append("]` **")
-                                    .append(err.getItem()).append("**: ").append(err.getReason()));
-                            String str = builder.toString();
-                            if (str.length() > 2000)
-                                str = str.substring(0, 1994) + " (...)";
-                            hook.editOriginal(FormatUtil.filter(str)).queue();
-                        });
-            });
         }
     }
 }
