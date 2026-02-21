@@ -12,6 +12,10 @@ import com.jagrosh.jmusicbot.commands.dj.*;
 import com.jagrosh.jmusicbot.commands.general.SettingsCmd;
 import com.jagrosh.jmusicbot.commands.music.*;
 import com.jagrosh.jmusicbot.commands.owner.*;
+import com.jagrosh.jmusicbot.commands.slash.admin.*;
+import com.jagrosh.jmusicbot.commands.slash.dj.*;
+import com.jagrosh.jmusicbot.commands.slash.general.SlashSettingsCmd;
+import com.jagrosh.jmusicbot.commands.slash.music.*;
 import com.jagrosh.jmusicbot.settings.SettingsManager;
 import com.jagrosh.jmusicbot.utils.OtherUtil;
 import net.dv8tion.jda.api.OnlineStatus;
@@ -74,6 +78,39 @@ public class CommandFactory {
                     new SetnameCmd(bot),
                     new SetstatusCmd(bot),
                     new ShutdownCmd(bot)
+            ).addSlashCommands(
+                    // General
+                    new SlashSettingsCmd(bot),
+
+                    // Music
+                    new SlashNowPlayingCmd(bot),
+                    new SlashPlayCmd(bot),
+                    new SlashPlaylistsCmd(bot),
+                    new SlashQueueCmd(bot),
+                    new SlashRemoveCmd(bot),
+                    new SlashSearchCmd(bot),
+                    new SlashSeekCmd(bot),
+                    new SlashShuffleCmd(bot),
+                    new SlashSkipCmd(bot),
+
+                    // DJ
+                    new SlashForceRemoveCmd(bot),
+                    new SlashForceskipCmd(bot),
+                    new SlashMoveTrackCmd(bot),
+                    new SlashPauseCmd(bot),
+                    new SlashPlaynextCmd(bot),
+                    new SlashRepeatCmd(bot),
+                    new SlashSkiptoCmd(bot),
+                    new SlashStopCmd(bot),
+                    new SlashVolumeCmd(bot),
+
+                    // Admin
+                    new SlashPrefixCmd(bot),
+                    new SlashQueueTypeCmd(bot),
+                    new SlashSetdjCmd(bot),
+                    new SlashSkipratioCmd(bot),
+                    new SlashSettcCmd(bot),
+                    new SlashSetvcCmd(bot)
             ).setManualUpsert(true);
 
         if (config.useEval())

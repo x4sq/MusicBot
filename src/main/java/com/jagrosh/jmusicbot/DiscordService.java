@@ -58,6 +58,11 @@ public class DiscordService {
             LOG.info("You currently have a custom prefix set. If it's not working, ensure 'MESSAGE CONTENT INTENT' is enabled.");
         }
 
+        // Upsert slash commands globally once JDA is ready
+        jda.awaitReady();
+        client.upsertInteractions(jda);
+        LOG.info("Slash commands upserted successfully.");
+
         return jda;
     }
 }

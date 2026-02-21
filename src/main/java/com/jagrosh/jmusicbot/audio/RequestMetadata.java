@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.jagrosh.jmusicbot.utils.TimeUtil;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.entities.User;
@@ -84,6 +85,12 @@ public class RequestMetadata
     public static RequestMetadata fromResultHandler(AudioTrack track, CommandEvent event)
     {
         return new RequestMetadata(event.getAuthor(), new RequestInfo(event.getArgs(), track.getInfo().uri));
+    }
+
+    public static RequestMetadata fromResultHandler(AudioTrack track, SlashCommandEvent event)
+    {
+        String query = event.getOptions().isEmpty() ? "" : event.getOptions().get(0).getAsString();
+        return new RequestMetadata(event.getUser(), new RequestInfo(query, track.getInfo().uri));
     }
     
     public static class RequestInfo
